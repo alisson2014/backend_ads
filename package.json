@@ -4,17 +4,22 @@
     "description": "Trabalho da matéria de backend do curso de ánalise e desenvolvimento de sistemas.",
     "main": "index.js",
     "scripts": {
-      "test": "echo \"Hello world\""
+        "start": "node --env-file=.env index.js",
+        "dev": "nodemon --env-file=.env index.js",
+        "test": "echo \"Hello world\""
     },
     "keywords": [
-      "nodejs",
-      "javascript",
-      "express",
-      "sqlite"
+        "nodejs",
+        "javascript",
+        "express",
+        "sqlite"
     ],
     "author": "Alisson V. M. de Almeida",
     "license": "MIT",
     "dependencies": {
-      "express": "^4.19.2"
+        "express": "^4.19.2"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.0"
     }
-  }
+}
