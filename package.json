@@ -1,0 +1,20 @@
+{
+    "name": "nodejs_work",
+    "version": "1.0.0",
+    "description": "Trabalho da matéria de backend do curso de ánalise e desenvolvimento de sistemas.",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Hello world\""
+    },
+    "keywords": [
+      "nodejs",
+      "javascript",
+      "express",
+      "sqlite"
+    ],
+    "author": "Alisson V. M. de Almeida",
+    "license": "MIT",
+    "dependencies": {
+      "express": "^4.19.2"
+    }
+  }
