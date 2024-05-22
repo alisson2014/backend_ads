@@ -23,7 +23,7 @@ const createContact = async (req, res) => {
     }
 
     try {
-        const newContact = await ContactRepository.add(contact);
+        const newContact = await ContactRepository.add(contact, req.user.id);
         return res.status(StatusCodes.CREATED).json(newContact);
     } catch (error) {
         return res
@@ -40,7 +40,7 @@ const updateContact = async (req, res) => {
     const id = Number(req.params.id);
 
     try {
-        const contactDb = await ContactRepository.find(id);
+        const contactDb = await ContactRepository.find(id, req.user.id);
 
         if(!contactDb){
             return res
@@ -75,7 +75,7 @@ const updateContact = async (req, res) => {
 
 const getAllContacts = async (req, res) => {
     try {
-        const contacts = await ContactRepository.all();
+        const contacts = await ContactRepository.all(req.user.id);
         return res.status(200).json(contacts);
     } catch (error) {
         return res
@@ -92,7 +92,7 @@ const deleteContact = async (req, res) => {
     const id = Number(req.params.id);
 
     try {
-        const contact = await ContactRepository.find(id);
+        const contact = await ContactRepository.find(id, req.user.id);
 
         if(!contact){
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Contato não encontrado" });
