@@ -7,11 +7,11 @@ const schema = yup.object().shape({
     email: yup.string().email("Email inválido").required("Email é obrigatório"),
     phone: yup
         .string()
-        .matches(/^\(?([1-9]{2})\)? ?(?:9\d{4}|[2-8]\d{3})-?\d{4}$/, 'Número de telefone inválido')
+        .matches(/^\d{11}$/, 'Número de telefone inválido')
         .required('O telefone é obrigatório'),
 });
 
-const createContact = async (req, res) => {
+const createContact = async (req, res, next) => {
     const contact = req.body;
 
     try {
@@ -26,13 +26,11 @@ const createContact = async (req, res) => {
         const newContact = await ContactRepository.add(contact, req.user.id);
         return res.status(StatusCodes.CREATED).json(newContact);
     } catch (error) {
-        return res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json({ error: ReasonPhrases.INTERNAL_SERVER_ERROR });
+        return next(error);
     }
 };
 
-const updateContact = async (req, res) => {
+const updateContact = async (req, res, next) => {
     if(isNaN(req.params?.id)) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "Id deve ser númerico" });
     }
@@ -67,24 +65,39 @@ const updateContact = async (req, res) => {
         const newContact = await ContactRepository.put(id, contact);
         return res.status(StatusCodes.OK).json(newContact);
     } catch (error) {
-        return res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json({ error: ReasonPhrases.INTERNAL_SERVER_ERROR });
+        return next(error);
     }
 };
 
-const getAllContacts = async (req, res) => {
+const getAllContacts = async (req, res, next) => {
     try {
         const contacts = await ContactRepository.all(req.user.id);
-        return res.status(200).json(contacts);
+        return res.status(StatusCodes.OK).json(contacts);
     } catch (error) {
-        return res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ error: ReasonPhrases.INTERNAL_SERVER_ERROR });
+        return next(error);
     }
 };
 
-const deleteContact = async (req, res) => {
+const findContact = async (req, res, next) => {
+    if(isNaN(req.params?.id)) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: "Id deve ser númerico" });
+    }
+
+    const contactId = Number(req.params.id);
+
+    try {
+        const contact = await ContactRepository.find(contactId, req.user.id);
+        if(!contact) {
+            return res.status(StatusCodes.NOT_FOUND).json({ error: ReasonPhrases.NOT_FOUND });
+        }
+        
+        return res.status(StatusCodes.OK).json(contact);
+    } catch (error) {
+        return next(error);
+    }
+}
+
+const deleteContact = async (req, res, next) => {
     if(isNaN(req.params?.id)) {
         return res.status(StatusCodes.BAD_REQUEST).json({ error: "Id deve ser númerico" });
     }
@@ -97,25 +110,18 @@ const deleteContact = async (req, res) => {
         if(!contact){
             return res.status(StatusCodes.NOT_FOUND).json({ error: "Contato não encontrado" });
         }
-    } catch (error) {
-        return res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json({ error: ReasonPhrases.INTERNAL_SERVER_ERROR });
-    }
 
-    try {
         await ContactRepository.del(id);
         return res.sendStatus(StatusCodes.NO_CONTENT);
     } catch (error) {
-        return res
-            .status(StatusCodes.INTERNAL_SERVER_ERROR)
-            .json({ error: ReasonPhrases.INTERNAL_SERVER_ERROR });
+        return next(error);
     }
 };
 
 module.exports = {
     createContact,
     getAllContacts,
+    findContact,
     updateContact,
     deleteContact
 };

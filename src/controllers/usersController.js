@@ -15,9 +15,7 @@ const createUser = async (req, res) => {
     try {
         await schema.validate(user);
     } catch (error) {
-        return res
-            .status(StatusCodes.BAD_REQUEST)
-            .json({ error: error.message });
+        return res.status(StatusCodes.BAD_REQUEST).json({ error: error.message });
     }
 
     try {
@@ -25,12 +23,11 @@ const createUser = async (req, res) => {
 
         if(systemUser) {
             return res
-                .status(StatusCodes.BAD_REQUEST)
-                .json({ error: "Não é possivel realizar o cadastro" });
+                .status(StatusCodes.CONFLICT)
+                .json({ error: "Usuário ja cadastrado impossivel cadastrar novamente." });
         }
 
-        const hashedPassword = bcrypy.hashSync(user.password, 12);
-        user.password = hashedPassword;
+        user.password = bcrypy.hashSync(user.password, 12);
 
         const newUser = await UsersRepository.add(user);
         if(!newUser.id) {
@@ -40,7 +37,7 @@ const createUser = async (req, res) => {
         }
 
         delete newUser.password;
-        return res.status(StatusCodes.CREATED).json({ status: ReasonPhrases.CREATED });
+        return res.status(StatusCodes.CREATED).json(newUser);
     } catch (error) {
         return res
             .status(StatusCodes.INTERNAL_SERVER_ERROR)
